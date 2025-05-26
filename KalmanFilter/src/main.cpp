@@ -1,5 +1,6 @@
 #include "KalmanFilter.hpp"
 #include "KalmanFilter.cpp"
+#include <functional>
 
 int main() {
      std::cout << "Main Program " << std::endl;
@@ -77,5 +78,27 @@ int main() {
 
     std::cout << "\n POINTER COUNTS\n" << "rk1ptr1: " << rkfptr1.use_count() << "\nrkfptr2:" << rkfptr2.use_count() << "\nrkfptr3:" << rkfptr3.use_count();
     
+    using State = decltype(rkf.getState());
+    
+    //auto could also be used for type erasure here below
+    std::function<State(float)> statmul = [&](auto k) noexcept -> State{
+        auto stat = rkf.getState();
+        for(size_t i=0;i<stat.first.X.size();++i)
+        {
+            stat.first.X[i]=k*stat.first.X[i];
+        }
+
+        return stat;
+    };
+
+
+    State scaled_stat = statmul(2.0f);
+    //auto stat_curr = rkf.getState().first.X;
+    auto stat_curr = scaled_stat.first.X;
+    for(size_t i=0;i<stat_curr.size();++i)
+    {
+        std::cout<< "State Element " << stat_curr.at(i) << std::endl;
+    }
+
     return 0;
 }
