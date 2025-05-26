@@ -1,7 +1,8 @@
 #pragma once
 #include <cstdint>
 #include "Data.hpp"
-#include<stdexcept>
+#include <stdexcept>
+#include <memory>
 
 namespace filter{
 template<int N>
@@ -12,9 +13,9 @@ public:
 KalmanFilter();
 explicit KalmanFilter(data::Pose2D_t<N> X,data::Covar2D_t<N> covin,uint32_t tim);
 KalmanFilter(KalmanFilter&) = default;
-KalmanFilter(KalmanFilter&&) = default;
+KalmanFilter(KalmanFilter&&) noexcept= default;
 KalmanFilter& operator=(KalmanFilter&) = default;
-KalmanFilter& operator=(KalmanFilter&&) = default;
+KalmanFilter& operator=(KalmanFilter&&) noexcept = default;
 
 //@brief - Fetches the initialization status of the Kalman Filter
 //@returns - [bool] - true or false status of initialization
@@ -65,6 +66,15 @@ public:
 
 //Using the same constructors and assignment operators as the KalmanFilter Class
 using KalmanFilter<N>::KalmanFilter;
+
+RobustKalman (std::shared_ptr<KalmanFilter<N>> other) //Can keep as just a normal pointer but in that case will need
+//to convert the input shared_pointer to the raw pointer via .get()
+{
+    this->Cov_m = other->getCovariance();
+    this->X_m = other->getState().first;
+    this->t_m = other->getState().second;
+    this->status_m = other->getStatus();
+}
 
 //@brief - Robust Kalman Filter Predict step, assumed to be x(k) = x(k-1)+vdeltat,y(k) = y(k-1)+2*vdeltat, phi(k) = phi(k-1)+omegadeltat 
 //@brief - Adds some checks and applies the prediction step of a Kalman Filter more Robustly
