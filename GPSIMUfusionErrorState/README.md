@@ -1,4 +1,5 @@
-# GPS IMU Fusion
+# GPS IMU Fusion 
+### [WIP - Only some more comments and tests are to be added]
 - A Loosely Coupled GPS IMU fusion has been implemented
 - Error State Kalman Filter has been used
 - Eigen has been used as well
